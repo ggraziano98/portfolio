@@ -3,6 +3,8 @@ import timeit
 import shlex
 from const import *
 
+# functions used for profiling and testing
+
 hands = ["2h 2d 2c kc qd",
          "2h 5h 7d 8c 9s",
          "ah 2d 3c 4c 5d",
@@ -20,7 +22,7 @@ sims = 5000
 
 def f():
     hand = parse('9s 8s')
-    w, l, t = simulate(hand, n_runs=sims)
+    w, l, t, _= simulate(hand, n_runs=sims)
 
 
 rep = 5

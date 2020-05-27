@@ -8,7 +8,7 @@ def flushes(allfaces):
     f, fs = ((LFLIST, LOWFACES) if any(c == '2' for c in allfaces)
              else (FLIST, FACES))
     ordered = sorted(allfaces, key=lambda card: f.index(card))
-    if ' '.join(ordered) in LOWFACES:
+    if ' '.join(ordered) in fs:
         return VALUES['straight flush'], ordered
     return VALUES['flush'], allfaces
 
@@ -17,7 +17,7 @@ def straight_or_nothing(allfaces):
     f, fs = ((LFLIST, LOWFACES) if any(c == '2' for c in allfaces)
              else (FLIST, FACES))
     ordered = sorted(allfaces, key=lambda card: f.index(card))
-    if ' '.join(ordered) in LOWFACES:
+    if ' '.join(ordered) in fs:
         return VALUES['straight'], ordered
     return VALUES['HC'], allfaces
 
@@ -126,7 +126,7 @@ def simulate(your_hand: Tuple[Card], board: Tuple[Card] = (), n_runs=100000, opp
     :param board: cards on the board
     :param n_runs: number of runs to simulate
     :param opp_range: TO BE IMPLEMENTED
-    :return:
+    :return: w, l, n_runs, w_against
     """
     deck = DECK.copy()
 
@@ -134,7 +134,8 @@ def simulate(your_hand: Tuple[Card], board: Tuple[Card] = (), n_runs=100000, opp
         deck.remove(c)
     n = 5-len(board)
     w, l = 0, 0
-    for i in range(n_runs):
+    w_against = []
+    for _ in range(n_runs):
         villain, draws = deal(deck, n)
         newboard = board + draws
         best = max((x for x in combinations(your_hand+newboard, 5)), key=lambda x: rank(x)[0])
@@ -143,6 +144,7 @@ def simulate(your_hand: Tuple[Card], board: Tuple[Card] = (), n_runs=100000, opp
         vill_score, vill_tie = rank(his)
         if your_score > vill_score:
             w += 1
+            w_against.append(villain)
             continue
         elif vill_score > your_score:
             l += 1
@@ -155,6 +157,7 @@ def simulate(your_hand: Tuple[Card], board: Tuple[Card] = (), n_runs=100000, opp
                     l += 1
                 elif temp == 1:
                     w += 1
+                    w_against.append(villain)
                 continue
 
             elif your_score == VALUES['TP']:
@@ -163,12 +166,15 @@ def simulate(your_hand: Tuple[Card], board: Tuple[Card] = (), n_runs=100000, opp
                     l += 1
                 elif temp == 1:
                     w += 1
+                    w_against.append(villain)
                 else:
                     temp = win_tie_card(your_tie[1], vill_tie[1])
                     if temp == -1:
                         l += 1
                     elif temp == 1:
                         w += 1
+                        w_against.append(villain)
+
 
             else:
                 temp = win_tie_card(your_tie[0], vill_tie[0])
@@ -176,15 +182,18 @@ def simulate(your_hand: Tuple[Card], board: Tuple[Card] = (), n_runs=100000, opp
                     l += 1
                 elif temp == 1:
                     w += 1
+                    w_against.append(villain)
+
                 else:
                     temp = win_tie_list(sorted(your_tie[1], key=lambda c: CARDVALUES[c]),
                                         sorted(vill_tie[1], key=lambda c: CARDVALUES[c]))
                     if temp == -1:
                         l += 1
                     elif temp == 1:
+                        w_against.append(villain)
                         w += 1
 
-    return w, l, n_runs
+    return w, l, n_runs, w_against
 
 
 # if temp == -1:

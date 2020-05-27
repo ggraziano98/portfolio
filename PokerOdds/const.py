@@ -16,7 +16,7 @@ LOWFACES = 'a 2 3 4 5 6 7 8 9 10 j q k'
 FLIST = tuple(FACES.split())
 LFLIST = tuple(LOWFACES.split())
 
-CARDVALUES = {c: i+2 for i, c in enumerate(FLIST)}
+CARDVALUES = {c: i+2 for i, c in enumerate(FLIST[::-1])}
 
 # dict of hand values
 VALUES = {
@@ -32,3 +32,16 @@ VALUES = {
 }
 
 DECK = [Card(f, s) for f in FLIST for s in SUIT]
+
+_rev = FLIST[::-1]
+CARDTABLE = []
+for f1 in _rev:
+    row = []
+    for f2 in _rev:
+        r = ''
+        if f2 == f1: r = f1+ ' ' + f2
+        elif _rev.index(f2) < _rev.index(f1):
+            r = f2 + ' ' + f1 + 'o'
+        else: r = f1 + ' ' + f2 + 's'
+        row.append(r)
+    CARDTABLE.append(row)
